@@ -14,6 +14,6 @@ public class CoffeeOrder {
     private Coffee coffee;
     @ManyToOne
     private Barista barista;
-    private String status; // "PENDING", "ACCEPTED", "IN_PROGRESS", "COMPLETED"
+    private String status; // "PENDING", "IN_PROGRESS", "COMPLETED"
     private boolean isCoffeeToGo;
 }

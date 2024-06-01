@@ -1,5 +1,6 @@
 package com.flppht.coffee_server.service.impl;
 
+import com.flppht.coffee_server.constants.StatusConstants;
 import com.flppht.coffee_server.model.Barista;
 import com.flppht.coffee_server.model.Coffee;
 import com.flppht.coffee_server.model.CoffeeOrder;
@@ -37,18 +38,18 @@ public class BaristaServiceImpl implements BaristaService {
                 barista.setCoffeeAmount(barista.getCoffeeAmount() - coffeeOrder.getCoffee().getAmountInGrams());
                 baristaRepository.save(barista);
 
-                coffeeOrder.setStatus("IN_PROGRESS");
+                coffeeOrder.setStatus(StatusConstants.IN_PROGRESS);
                 coffeeOrder.setBarista(barista);
                 coffeeOrderRepository.save(coffeeOrder);
 
-                //time reserved for making coffee
+                // time reserved for making coffee
                 scheduler.schedule(() -> {
                     barista.setBusy(false);
                     baristaRepository.save(barista);
-                    coffeeOrder.setStatus("COMPLETED");
+                    coffeeOrder.setStatus(StatusConstants.COMPLETED);
                     coffeeOrderRepository.save(coffeeOrder);
-                    //after coffee is made, check if there's enough coffee to proceed
-                    //if not, refill the grinder and be unavailable for 2 min
+                    // after coffee is made, check if there's enough coffee to proceed
+                    // if not, refill the grinder and be unavailable for 2 min
                     if (barista.getCoffeeAmount() < minCoffeeAmountInGrinder()) {
                         refillCoffee(barista);
                     }
@@ -56,13 +57,13 @@ public class BaristaServiceImpl implements BaristaService {
 
                 }, coffeeOrder.getCoffee().getTimeToMakeInSec(), TimeUnit.SECONDS);
 
-
                 return;
             }
         }
 
-        //if coffee to go and in case there's no available barista, try to add order to order queue
-        if(coffeeOrder.isCoffeeToGo()) {
+        // if coffee to go and in case there's no available barista, try to add order to
+        // order queue
+        if (coffeeOrder.isCoffeeToGo()) {
             addToPendingQueue(coffeeOrder);
         }
     }
@@ -82,15 +83,16 @@ public class BaristaServiceImpl implements BaristaService {
     }
 
     private void processNextOrder() {
-        //first proceed with coffee to go orders if exists
-        List<CoffeeOrder> coffeeToGoPendingOrders = coffeeOrderRepository.findByStatusByCoffeeToGo("PENDING");
-        if(!coffeeToGoPendingOrders.isEmpty()) {
+        // first proceed with coffee to go orders if exists
+        List<CoffeeOrder> coffeeToGoPendingOrders = coffeeOrderRepository
+                .findByStatusByCoffeeToGo(StatusConstants.PENDING);
+        if (!coffeeToGoPendingOrders.isEmpty()) {
             CoffeeOrder nextOrder = coffeeToGoPendingOrders.get(0);
             assignOrderToBarista(nextOrder);
         } else {
-            //if not, proceed with table orders
-            List<CoffeeOrder> tablePendingOrders = coffeeOrderRepository.findByStatusByTable("PENDING");
-            if(!tablePendingOrders.isEmpty()) {
+            // if not, proceed with table orders
+            List<CoffeeOrder> tablePendingOrders = coffeeOrderRepository.findByStatusByTable(StatusConstants.PENDING);
+            if (!tablePendingOrders.isEmpty()) {
                 CoffeeOrder nextOrder = tablePendingOrders.get(0);
                 assignOrderToBarista(nextOrder);
             }
@@ -102,19 +104,21 @@ public class BaristaServiceImpl implements BaristaService {
         if (pendingOrdersCount < MAX_ORDERS_TO_ACCEPT) {
             coffeeOrderRepository.save(coffeeOrder);
         } else {
-            throw new RuntimeException("All baristas are busy and the pending order is full. Your order cannot be accepted right now.");
+            throw new RuntimeException(
+                    "All baristas are busy and the pending order is full. Your order cannot be accepted right now.");
         }
     }
 
     private int getPendingOrdersCount() {
-        return coffeeOrderRepository.findByStatusByCoffeeToGo("PENDING").size();
+        return coffeeOrderRepository.findByStatusByCoffeeToGo(StatusConstants.PENDING).size();
     }
 
-    //minimum amount of coffee in grinder so at least one coffee can be made
+    // minimum amount of coffee in grinder so at least one coffee can be made
     private int minCoffeeAmountInGrinder() {
         List<Coffee> coffeeAmount = coffeeRepository.findAll();
-        //find coffee with max value of grams
-        Coffee coffee = coffeeAmount.stream().max(Comparator.comparing(Coffee::getAmountInGrams)).orElseThrow(NoSuchElementException::new);
+        // find coffee with max value of grams
+        Coffee coffee = coffeeAmount.stream().max(Comparator.comparing(Coffee::getAmountInGrams))
+                .orElseThrow(NoSuchElementException::new);
         return coffee.getAmountInGrams();
     }
 }

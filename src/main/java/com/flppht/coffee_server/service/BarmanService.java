@@ -1,5 +1,6 @@
 package com.flppht.coffee_server.service;
 
+import com.flppht.coffee_server.constants.StatusConstants;
 import com.flppht.coffee_server.model.Coffee;
 import com.flppht.coffee_server.model.CoffeeOrder;
 import com.flppht.coffee_server.model.CoffeeReqBody;
@@ -26,12 +27,12 @@ public class BarmanService {
 
         CoffeeOrder coffeeOrder = new CoffeeOrder();
         coffeeOrder.setCoffee(coffee.get());
-        coffeeOrder.setStatus("PENDING");
+        coffeeOrder.setStatus(StatusConstants.PENDING);
         coffeeOrder.setCoffeeToGo(true);
 
         try {
             baristaService.assignOrderToBarista(coffeeOrder);
-            if (Objects.equals(coffeeOrder.getStatus(), "PENDING")) {
+            if (Objects.equals(coffeeOrder.getStatus(), StatusConstants.PENDING)) {
                 return new ResponseEntity<>(
                         "Your order is added to pending list, please wait. Order no: " + coffeeOrder.getId(),
                         HttpStatus.CREATED);
@@ -50,7 +51,7 @@ public class BarmanService {
 
                 CoffeeOrder coffeeOrder = new CoffeeOrder();
                 coffeeOrder.setCoffee(coffee.get());
-                coffeeOrder.setStatus("PENDING");
+                coffeeOrder.setStatus(StatusConstants.PENDING);
                 coffeeOrder.setCoffeeToGo(false);
                 coffeeOrderRepository.save(coffeeOrder);
                 order.add(coffeeOrder);
