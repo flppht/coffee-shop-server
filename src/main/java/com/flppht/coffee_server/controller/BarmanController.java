@@ -1,6 +1,5 @@
 package com.flppht.coffee_server.controller;
 
-
 import com.flppht.coffee_server.model.CoffeeOrder;
 import com.flppht.coffee_server.model.CoffeeReqBody;
 import com.flppht.coffee_server.service.BarmanService;
@@ -17,17 +16,29 @@ public class BarmanController {
     private BarmanService barmanService;
 
     @PostMapping("coffee-to-go/{coffeeId}")
-    public ResponseEntity<String> createOrderCoffeeToGo (@PathVariable int coffeeId) {
+    public ResponseEntity<String> createOrderCoffeeToGo(@PathVariable int coffeeId) {
         return barmanService.createOrderCoffeeToGo(coffeeId);
     }
 
     @PostMapping("table")
-    public ResponseEntity<List<CoffeeOrder>> createOrderAtTable (@RequestBody List<CoffeeReqBody> coffeeList) {
+    public ResponseEntity<List<CoffeeOrder>> createOrderAtTable(@RequestBody List<CoffeeReqBody> coffeeList) {
         return barmanService.createOrderAtTable(coffeeList);
     }
 
     @GetMapping("status/{orderId}")
     public ResponseEntity<String> statusOfOrder(@PathVariable int orderId) {
         return barmanService.statusOfOrder(orderId);
+    }
+
+    @GetMapping("/pendingOrders")
+    // coffee to go pending list
+    public ResponseEntity<List<CoffeeOrder>> getPendingOrders() {
+        return barmanService.getPendingOrders();
+    }
+
+    @GetMapping("/completedOrders")
+    // coffee to go pending list
+    public ResponseEntity<List<CoffeeOrder>> getCompletedOrders() {
+        return barmanService.getCompletedOrders();
     }
 }

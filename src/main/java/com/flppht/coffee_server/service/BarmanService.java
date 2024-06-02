@@ -26,7 +26,11 @@ public class BarmanService {
         Optional<Coffee> coffee = coffeeRepository.findById(coffeeId);
 
         CoffeeOrder coffeeOrder = new CoffeeOrder();
-        coffeeOrder.setCoffee(coffee.get());
+        try {
+            coffeeOrder.setCoffee(coffee.get());
+        } catch (Exception e) {
+            return new ResponseEntity<>("Coffee not found!", HttpStatus.NOT_FOUND);
+        }
         coffeeOrder.setStatus(StatusConstants.PENDING);
         coffeeOrder.setCoffeeToGo(true);
 
@@ -34,12 +38,13 @@ public class BarmanService {
             baristaService.assignOrderToBarista(coffeeOrder);
             if (Objects.equals(coffeeOrder.getStatus(), StatusConstants.PENDING)) {
                 return new ResponseEntity<>(
-                        "Your order is added to pending list, please wait. Order no: " + coffeeOrder.getId(),
+                        "Your order is added to pending list, please wait. Order no." + coffeeOrder.getId(),
                         HttpStatus.CREATED);
             }
-            return new ResponseEntity<>("Your order is accepted. Order no: " + coffeeOrder.getId(), HttpStatus.CREATED);
+            return new ResponseEntity<>("Your order is accepted. Order no." + coffeeOrder.getId(), HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            System.out.println(e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -70,5 +75,15 @@ public class BarmanService {
                 HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>("Order does not exist!",
                         HttpStatus.NOT_FOUND));
+    }
+
+    public ResponseEntity<List<CoffeeOrder>> getPendingOrders() {
+        return new ResponseEntity<>(coffeeOrderRepository.findByStatusByCoffeeToGo(StatusConstants.PENDING),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<CoffeeOrder>> getCompletedOrders() {
+        return new ResponseEntity<>(coffeeOrderRepository.findByStatus(StatusConstants.COMPLETED),
+                HttpStatus.OK);
     }
 }

@@ -13,4 +13,6 @@ public interface CoffeeOrderRepository extends JpaRepository<CoffeeOrder, Intege
 
     @Query(value = "SELECT * from coffee_order o where o.status=:status and o.is_coffee_to_go=false", nativeQuery = true)
     List<CoffeeOrder> findByStatusByTable(String status);
+
+    List<CoffeeOrder> findByStatus(String status);
 }

@@ -9,6 +9,8 @@ import com.flppht.coffee_server.repository.CoffeeOrderRepository;
 import com.flppht.coffee_server.repository.CoffeeRepository;
 import com.flppht.coffee_server.service.BaristaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -68,6 +70,10 @@ public class BaristaServiceImpl implements BaristaService {
         }
     }
 
+    public ResponseEntity<List<Barista>> getAllBaristas() {
+        return new ResponseEntity<>(baristaRepository.findAll(), HttpStatus.OK);
+    }
+
     private void refillCoffee(Barista barista) {
         barista.setRefilling(true);
         baristaRepository.save(barista);
@@ -100,16 +106,16 @@ public class BaristaServiceImpl implements BaristaService {
     }
 
     private void addToPendingQueue(CoffeeOrder coffeeOrder) {
-        int pendingOrdersCount = getPendingOrdersCount();
+        int pendingOrdersCount = pendingOrdersCount();
         if (pendingOrdersCount < MAX_ORDERS_TO_ACCEPT) {
             coffeeOrderRepository.save(coffeeOrder);
         } else {
             throw new RuntimeException(
-                    "All baristas are busy and the pending order is full. Your order cannot be accepted right now.");
+                    "All baristas are busy and the pending order list is full. Your order cannot be accepted right now.");
         }
     }
 
-    private int getPendingOrdersCount() {
+    private Integer pendingOrdersCount() {
         return coffeeOrderRepository.findByStatusByCoffeeToGo(StatusConstants.PENDING).size();
     }
 

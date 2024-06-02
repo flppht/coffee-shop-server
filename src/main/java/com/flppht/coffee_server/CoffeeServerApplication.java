@@ -20,14 +20,18 @@ public class CoffeeServerApplication {
 	}
 
 	@Bean
-	public ApplicationRunner initializer(CoffeeRepository coffeeRepository, BarmanRepository barmanRepository, BaristaRepository baristaRepository, CoffeeOrderRepository coffeeOrderRepository) {
+	public ApplicationRunner initializer(CoffeeRepository coffeeRepository, BarmanRepository barmanRepository,
+			BaristaRepository baristaRepository, CoffeeOrderRepository coffeeOrderRepository) {
 		return args -> {
-			//add initial coffee types to the db
-			Coffee espresso = coffeeRepository.save(new Coffee("espresso", 1, "https://images.unsplash.com/photo-1508088405209-fbd63b6a4f50", 7, 35));
-			Coffee espressoDoppio =coffeeRepository.save(new Coffee("espresso doppio", 2, "https://images.unsplash.com/photo-1610889556528-9a770e32642f", 14, 45));
-			Coffee cappuccino =coffeeRepository.save(new Coffee("cappuccino", 2.5, "https://images.unsplash.com/photo-1620052087057-bfd8235f5874", 7, 60));
+			// add initial coffee types to the db
+			coffeeRepository.save(
+					new Coffee("espresso", 1, "https://images.unsplash.com/photo-1508088405209-fbd63b6a4f50", 7, 35));
+			coffeeRepository.save(new Coffee("espresso doppio", 2,
+					"https://images.unsplash.com/photo-1610889556528-9a770e32642f", 14, 45));
+			coffeeRepository.save(new Coffee("cappuccino", 2.5,
+					"https://images.unsplash.com/photo-1620052087057-bfd8235f5874", 7, 60));
 
-			//add a barman
+			// add a barman
 			barmanRepository.save(new Barman());
 
 			// add 3 baristas
